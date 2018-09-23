@@ -1,0 +1,24 @@
+---
+  - name: creating the s3 bucket using template
+    hosts: localhost
+    tasks:
+      - cloudformation:
+          aws_access_key: "{{ accesskey }}"
+          aws_secret_key: "{{ secretkey }}"
+          region: "{{ nameofregion }}"
+          stack_name: "{{ stackname }}"
+          state: present
+          template: "{{ templatepath }}"
+          template_parameters:
+               sourcebucketname: "{{ sourcebucketname }}"
+               targetbucketname: "{{ targetbucketname }}"
+               logfileprefix: "{{ logprefix }}"
+      - s3_sync:
+          aws_access_key: "{{ accesskey }}"
+          aws_secret_key: "{{ secretkey }}"
+          bucket: "{{ sourcebucketname }}"
+          region: "{{ nameofregion }}"
+          mode: push
+          file_root: "{{ filepath }}"
+          permission: "{{ modeofobject }}"
+          include: '*'

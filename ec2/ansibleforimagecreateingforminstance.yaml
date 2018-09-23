@@ -1,0 +1,12 @@
+---
+ - name: creating image form instance
+   hosts: localhost
+   tasks:
+    - ec2_ami:
+        aws_access_key: "{{ accesskey }}"
+        aws_secret_key: "{{ secretkey }}"
+        region: "{{ nameofregion }}"
+        instance_id: "{{ instanceid }}"
+        state: present
+        name: "{{ nameofimage }}"
+         

@@ -1,0 +1,15 @@
+---
+ - name: Ansible For Creating A Record in Route53
+   hosts: localhost
+   tasks:
+     - cloudformation:
+         aws_access_key: "{{ accesskey }}"
+         aws_secret_key: "{{ secretkey }}"
+         region: "{{ nameofregion }}"
+         state: present
+         stack_name: "{{ stackname }}"
+         template: "{{ templatepath }}"
+         template_parameters: 
+             hostedzonename: "{{ hostedzonename }}"
+             publicip: "{{ publicip }}"
+             name: "{{ domainname }}" 

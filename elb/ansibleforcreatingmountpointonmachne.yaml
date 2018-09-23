@@ -1,0 +1,34 @@
+## ansible for creating the pv,vg,lv and mountpoint on machine
+---
+
+ - name: creating the ansible for attachingvolume and making filesystem on that volume
+   hosts: uservm
+   become: yes
+   become_user: root
+   tasks:
+     - name: creating the directory to mount the volume
+       file: path={{ pathname }} state=directory
+     - name: installing package for pv,vg,lv create
+       yum:  name=lvm2 state=latest
+     - name: creating physical volume,volumegroup form the volume
+       lvg:  pvs={{ devicename }} vg=datavg state=present
+     - name: configuraing the logical volume form the volume group
+       lvol:
+         vg: datavg
+         size: "{{mountvolumesize}}g"
+         lv: datavol
+         state: present
+     - name: creating the filesystem for the device
+       filesystem:
+          dev: /dev/mapper/datavg-datavol
+          fstype: "{{ filesystemtype }}"
+          resizefs: yes
+     - name: mounting to the directory
+       command:  mount /dev/datavg/datavol "{{ pathname }}"
+     - name: creating fstab entry for mounted volume
+       blockinfile:
+          create: yes
+          state: present
+          dest: /etc/fstab
+          block: |
+            /dev/datavg/datavol {{ pathname }} defaults,nofail,comment=cloudconfig 0 2

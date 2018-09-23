@@ -1,0 +1,10 @@
+---
+  - name: making entry of the machine ip in ansible host file
+    hosts: localhost
+    tasks:
+      - blockinfile:
+            create: yes
+            dest: /etc/ansible/hosts
+            state: present
+            block: |
+              uservm ansible_host="{{ publicip }}" ansible_connection=ssh ansible_user="{{ uservmadminusername }}" ansible_private_key_file="{{ keypath }}" 

@@ -1,0 +1,22 @@
+---
+  - name: Enabling Logging For The Bucket
+    hosts: localhost
+    tasks:
+      - cloudformation:
+           aws_access_key: "{{ accesskey }}"
+           aws_secret_key: "{{ secretkey }}"
+           region: "{{ nameofregion }}"
+           stack_name: "{{ stackname }}"
+           state: present
+           template: "{{ templatepath }}"
+           template_parameters:
+                bucketname: "{{ bucketname }}"
+      - s3_sync: 
+           aws_access_key: "{{ accesskey }}"
+           aws_secret_key: "{{ secretkey }}"
+           bucket: "{{ bucketname }}"
+           region: "{{ nameofregion }}"
+           file_root: "{{ directorypath }}"
+           permission: public-read
+           include: '*'
+

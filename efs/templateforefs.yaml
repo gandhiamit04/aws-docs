@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Vpc and Two Subnets and Efs attaching subnets to Efs
+
+Parameters:
+   networkname:
+      Type: String
+      Description: Enter The NetworkName
+   firstsubnetname:
+      Type: String
+      Description: Enter The firstsubnet Name
+   secondsubnetname:
+      Type: String
+      Description: Enter The secondsubnet Name
+   networkcidr:
+      Type: String
+      Description: Enter The CIDR for The Network
+   firstsubnetcidr:
+      Type: String
+      Description: Enter The firstsubnetcidr For the Subnet
+   secondsubnetcidr:
+      Type: String
+      Description: Enter The secondsubnetcidr for the subnet
+   igwname:
+      Type: String
+      Description: Enter The igw name
+   firstsubnetavailabilityzone:
+      Type: String
+      Description: Enter The first subnet availabilityzone     
+   secondsubnetavailabilityzone:
+      Type: String
+      Description: Enter The second subnet availabilityzone  
+   routetablename:
+      Type: String
+      Description: Enter The routetablename
+   efsname:
+      Type: String
+      Description: Enter The efs name
+   efsperfomancemode:
+      Type: String
+      Description: Enter the efs mode
+      Default: generalPurpose
+      AllowedValues:
+         - generalPurpose
+         - maxIO    
+   sgname:
+      Type: String
+      Description: enter the sgname
+Resources:
+   sgcreation:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupName:   
+              Ref: sgname
+            GroupDescription: Securitygroup for efs
+            VpcId:
+              Ref: networkcreation
+            SecurityGroupIngress:
+               - FromPort: 22
+                 ToPort: 22
+                 IpProtocol: tcp
+                 CidrIp: 0.0.0.0/0
+               - FromPort: 80
+                 ToPort: 80
+                 IpProtocol: tcp
+                 CidrIp: 0.0.0.0/0            
+   networkcreation:
+        Type: AWS::EC2::VPC
+        Properties:
+            Tags:
+              - Key: Name
+                Value: 
+                   Ref: networkname
+            EnableDnsHostnames: true
+            EnableDnsSupport: true
+            CidrBlock:
+                Ref: networkcidr        
+   firstsubnetcreation:
+         Type: AWS::EC2::Subnet
+         Properties:
+            Tags:
+              - Key: Name
+                Value: 
+                   Ref: firstsubnetname
+            VpcId: 
+                Ref: networkcreation
+            CidrBlock:
+                Ref: firstsubnetcidr
+            AvailabilityZone:
+                Ref: firstsubnetavailabilityzone
+            MapPublicIpOnLaunch: true  
+   secondsubnetcreation:
+         Type: AWS::EC2::Subnet
+         Properties:
+            Tags:
+              - Key: Name
+                Value:
+                   Ref: secondsubnetname
+            AvailabilityZone:
+                Ref: secondsubnetavailabilityzone
+            CidrBlock:
+                Ref: secondsubnetcidr
+            VpcId:
+                Ref: networkcreation
+            MapPublicIpOnLaunch: true
+   routetablecreation:
+         Type: AWS::EC2::RouteTable
+         Properties:
+            Tags:
+              - Key: Name 
+                Value:
+                    Ref: routetablename
+            VpcId:
+                Ref: networkcreation
+   firstsubnetassoc:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: routetablecreation
+            SubnetId:
+                Ref: firstsubnetcreation
+   secondsubnetassoc:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+           RouteTableId:
+                Ref: routetablecreation
+           SubnetId:
+                Ref: secondsubnetcreation
+   igwcreation:
+        Type: AWS::EC2::InternetGateway
+        Properties:
+           Tags:
+             - Key: Name
+               Value:
+                  Ref: igwname
+   igwattachment:
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+           InternetGatewayId:
+               Ref: igwcreation
+           VpcId:
+               Ref: networkcreation        
+   routeadd:
+        Type: AWS::EC2::Route
+        Properties:
+           RouteTableId:
+               Ref: routetablecreation
+           GatewayId:
+               Ref: igwcreation
+           DestinationCidrBlock: 0.0.0.0/0
+   efscreation:
+        Type: AWS::EFS::FileSystem
+        Properties:
+           FileSystemTags:
+              - Key: Name
+                Value:
+                   Ref: efsname
+           PerformanceMode:
+                   Ref: efsperfomancemode
+   efsmounttagrgetwithfirstsubnet:
+        Type: AWS::EFS::MountTarget
+        Properties:
+           FileSystemId:
+                Ref: efscreation
+           SubnetId:
+                Ref: firstsubnetcreation
+           SecurityGroups:
+              - Ref: sgcreation
+   efsmounttargetwithsecondsubnet:
+        Type: AWS::EFS::MountTarget
+        Properties:
+           FileSystemId:
+                Ref: efscreation
+           SubnetId:
+                Ref: secondsubnetcreation
+           SecurityGroups:
+              - Ref: sgcreation
+Outputs:
+  networkid:
+     Description: output of networkid
+     Value:
+        Ref: networkcreation
+  firstsubnetid:
+     Description: output of firstsubnetid
+     Value:
+        Ref: firstsubnetcreation
+  secondsubnetid:
+     Description: output of secondsubnetid
+     Value:
+        Ref: secondsubnetcreation                    
+  routetableid:
+     Description: output of routetable id
+     Value:
+       Ref: routetablecreation
+  igwid:
+     Description: output od Internetgateway id
+     Value:
+       Ref: igwcreation
+  efsid:
+     Description: output of efsid
+     Value:
+       Ref: efscreation                                         

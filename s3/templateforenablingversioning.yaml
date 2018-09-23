@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Enabling The Versioning For The Bucket
+
+Parameters:
+   bucketname:
+       Type: String
+       Description: name of the bucket
+   versioningstatus:
+       Type: String
+       Description: Enter The status of Version enable/suspend
+Resources:
+  versionbucketcreation:
+       Type: AWS::S3::Bucket
+       Properties:
+           BucketName:
+                Ref: bucketname 
+           VersioningConfiguration:
+                Status:
+                    Ref: versioningstatus
+Outputs:
+   versionbucketname:
+      Description: output of bucket version name
+      Value:
+         Ref: versionbucketcreation

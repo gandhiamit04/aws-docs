@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Route53 A Record For Domainname
+
+Parameters:
+   hostedzonename:
+      Type: String
+      Description: The name of the domain for the hosted zone where you want to add the record set.
+   publicip:
+      Type: String
+      Description: Enter the publicip of the machine
+   name:
+      Type: String
+      Description: Enter The Name That you want To Attach To The HosetedZone For Creating your own Domain.
+   
+Resources:
+   recordcreation:
+       Type: AWS::Route53::RecordSet
+       Properties:
+           HostedZoneName:
+               Ref: hostedzonename
+           Name: 
+               Fn::Join: ["", [ Ref: name, ".", Ref: hostedzonename ] ]
+           Type: A
+           TTL: 300
+           ResourceRecords:
+              - Ref: publicip
+    
+   
+        

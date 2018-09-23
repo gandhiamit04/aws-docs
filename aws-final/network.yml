@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  tasks:
+  - include_role:
+       name: network
+  - include_role:
+       name: rdsdb
+  - include_role:
+       name: amiinstance
+- hosts: webami
+  become: yes
+  become_method: sudo
+  gather_facts: false
+  tasks:
+  - include_role:
+       name: sshwait
+- hosts: webami
+  become: yes
+  become_method: sudo
+  tasks:
+  - include_role:
+       name: webserver
+- hosts: localhost
+  tasks:
+  - include_role:
+       name: stopinstance
+  - include_role:
+       name: amicreate
+  - include_role:
+       name: autoscaling

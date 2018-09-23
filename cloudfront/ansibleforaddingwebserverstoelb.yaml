@@ -1,0 +1,19 @@
+---
+  - name: Ansible for adding Webserver to elb
+    hosts: localhost
+    tasks:
+      - cloudformation: 
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            region: "{{ nameofregion }}"
+            stack_name: "{{ stackname }}"
+            state: present
+            template: "{{ templatepath }}"
+            template_parameters:
+                elbsgname: "{{ elbsgname }}"
+                vpcid: "{{ vpcid }}"
+                elbname: "{{ elbname }}"
+                firstsubnetid: "{{ firstsubnetid }}"
+                secondsubnetid: "{{ secondsubnetid }}"
+                firstinstanceid: "{{ firstinstanceid }}"
+                secondinstanceid: "{{ secondinstanceid }}"

@@ -1,0 +1,22 @@
+---
+   - name: facts output for the vpc
+     hosts: localhost
+     tasks:
+      - ec2_vpc_net_facts:
+           aws_access_key: "{{ accesskey }}"
+           aws_secret_key: "{{ secretkey }}" 
+           region: "{{ nameofregion }}"
+        register: vpcoutput
+      - cloudformation: 
+           aws_access_key: "{{ accesskey }}"
+           aws_secret_key: "{{ secretkey }}" 
+           region: "{{ nameofregion }}"
+           stack_name: "{{ stackname }}"
+           state: present
+           template: "{{ templatepath }}"
+           template_parameters:
+               vpcid: "{{ item }}" 
+        with_items: "{{ vpcoutput | json_query('vpcs[*].id') }}" 
+        register: sgoutput 
+      - debug: var=item 
+        with_items: "{{ sgoutput | json_query('stack_outputs[*].sgid') }}"

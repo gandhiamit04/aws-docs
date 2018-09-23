@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating the volume and adding to instance 
+
+
+Parameters:
+
+  volumesize:
+      Type: Number
+      Description: Enter The volume size to create
+  volumename:
+      Type: String
+      Description: Enter The volume name for the volume
+  availabilityzone:
+      Type: String
+      Description: Enter the availabilityzone to create the volume
+  instanceid:
+      Type: String
+      Description: Enter the instace id to attach the vm
+  devicetype:
+      Type: String
+      Description: Enter the devicetype to attach to an instance         
+Resources:
+  volumecreation:
+      Type: AWS::EC2::Volume
+      Properties:
+         Size: 
+            Ref: volumesize
+         AvailabilityZone:
+            Ref: availabilityzone
+         VolumeType: gp2
+         Tags:
+          - Key: Name    
+            Value:
+              Ref: volumename
+  volumeattachment:
+      Type: AWS::EC2::VolumeAttachment
+      Properties:
+         Device:
+            Ref: devicetype
+         InstanceId:
+            Ref: instanceid
+         VolumeId:
+            Ref: volumecreation
+
+Outputs:
+  volumeid:
+     Description: output of volumeid
+     Value:
+        Ref: volumecreation

@@ -1,0 +1,27 @@
+---
+
+ - name: creating website 
+   hosts: uservm
+   become: yes
+   become_user: root
+   tasks: 
+    - name: installing httpd package
+      yum: name=httpd state=present
+    - name: starting httpd service 
+      systemd: state=started name=httpd 
+    - name: enabling httpd service
+      command: systemctl enable httpd
+    - name: inserting the block of code for the website
+      blockinfile:
+          create: yes
+          dest: /var/www/html/index.html
+          state: present
+          block: |
+            <html>
+              <h1>WELCOME TO YOUR WEBSITE</h1>
+              <image src="{{imagelink}}"></image>
+            </html> 
+    - name: starting httpd service 
+      systemd: state=started name=httpd 
+    - name: enabling httpd service
+      command: systemctl enable httpd

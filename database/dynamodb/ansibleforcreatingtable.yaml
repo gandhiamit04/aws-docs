@@ -1,0 +1,15 @@
+---
+  - name: Ansible For Creating DynamoDb Table
+    hosts: localhost
+    tasks:
+      - cloudformation:
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            state: present
+            region: "{{ nameofregion }}"
+            stack_name: "{{ stackname }}"
+            template: "{{ templatepath }}"
+            template_parameters:
+                 tablename: "{{ tablename }}"
+                 attributename: "{{ attributename }}"
+                 attributetype: "{{ attributedatatype }}"

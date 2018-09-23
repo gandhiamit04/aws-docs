@@ -1,0 +1,139 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Network For Vpc Peering
+
+Parameters:
+  networkname:
+      Type: String
+      Description: Enter the network name
+  networkcidr:
+      Type: String
+      Description: Enter the network cidr
+  firstsubnetname:
+      Type: String
+      Description: Enter the firstpublic subnet name
+  firstsubnetcidr:
+      Type: String
+      Description: Enter the firstsubnet cidr block
+  firstsubnetavailabilityzone:
+      Type: String
+      Description: Enter the first subnet availability zone   
+  secondsubnetname:
+      Type: String
+      Description: Enter the second subnet name
+  secondsubnetcidr:
+      Type: String
+      Description: Enter the secondsunet cidr block
+  secondsubnetavailabilityzone:
+      Type: String
+      Description: Enter the second subnet availabilityzone 
+  routetablename:
+      Type: String
+      Description: Enter route table name  
+  igwname:
+      Type: String
+      Description: Enter the igw name 
+
+Resources:
+  networkcreation:
+      Type: AWS::EC2::VPC
+      Properties:
+          Tags:
+            - Key: Name
+              Value:
+                 Ref: networkname
+          CidrBlock:
+              Ref: networkcidr
+          EnableDnsSupport: true
+          EnableDnsHostnames: true
+  firstpublicsubnet:
+      Type: AWS::EC2::Subnet
+      Properties:
+          Tags:
+            - Key: Name
+              Value:
+                Ref: firstsubnetname
+          MapPublicIpOnLaunch: true
+          CidrBlock:
+                Ref: firstsubnetcidr
+          VpcId:
+                Ref: networkcreation
+          AvailabilityZone:
+                Ref: firstsubnetavailabilityzone
+  secondpublicsubnet:
+      Type: AWS::EC2::Subnet
+      Properties:
+         Tags:
+           - Key: Name
+             Value:
+               Ref: secondsubnetname
+         CidrBlock:
+           Ref: secondsubnetcidr
+         VpcId:
+           Ref: networkcreation
+         MapPublicIpOnLaunch: true
+         AvailabilityZone:
+           Ref: secondsubnetavailabilityzone   
+  routetablecreation:
+      Type: AWS::EC2::RouteTable
+      Properties:
+         Tags:
+           - Key: Name
+             Value:
+               Ref: routetablename
+         VpcId:
+           Ref: networkcreation   
+  firstsubnetassoc:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+         SubnetId:
+             Ref: firstpublicsubnet
+         RouteTableId:
+             Ref: routetablecreation
+  secondsubnetassoc:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+         SubnetId:
+             Ref: secondpublicsubnet
+         RouteTableId:
+             Ref: routetablecreation
+  igwcreation:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+         Tags:
+           - Key: Name
+             Value:
+                Ref: igwname
+  igwattachment:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+         VpcId:
+           Ref: networkcreation
+         InternetGatewayId:
+           Ref: igwcreation
+  routeaddition:
+      Type: AWS::EC2::Route
+      Properties:
+          RouteTableId:
+               Ref: routetablecreation
+          GatewayId:
+               Ref: igwcreation
+          DestinationCidrBlock: 0.0.0.0/0 
+Outputs:
+  networkid:
+      Description: Output of networkid
+      Value:
+        Ref: networkcreation
+  firstsubnetid:
+      Description: Output of firstsubnet id
+      Value:
+        Ref: firstpublicsubnet
+  secondsubnetid:
+      Description: Output of secondsubnet id
+      Value:
+        Ref: secondpublicsubnet
+  routetableid:
+      Description: Output of routetable id
+      Value:
+        Ref: routetablecreation
+

@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Ec2 Instance
+
+Parameters:
+   instancename:
+        Type: String
+        Description: Enter the instance name
+   availabilityzone:
+        Type: String
+        Description: Enter the instance availabilityzone
+   subnetid:
+        Type: String
+        Description: Enter the subnet id used to lauhch and instance
+   imageid:
+        Type: String
+        Description: Enter the imageid used to launch an instance
+   keyname:
+        Type: String
+        Description: Enter the keyname used to connect an instance
+   instancetype:
+        Type: String
+        Description: Enter instance type used to launch an instance
+   vpcid:
+        Type: String
+        Description: Enter the vpcid
+   sgname: 
+        Type: String
+        Description: Enter the sgname
+
+Resources:
+  sgcreation:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+         GroupName:
+             Ref: sgname
+         GroupDescription: Security group for instances
+         VpcId:
+             Ref: vpcid
+         SecurityGroupIngress:
+           - FromPort: 22
+             ToPort: 22
+             IpProtocol: tcp
+             CidrIp: 0.0.0.0/0
+           - FromPort: 80
+             ToPort: 80
+             IpProtocol: tcp
+             CidrIp: 0.0.0.0/0
+  instancecreation:
+      Type: AWS::EC2::Instance
+      Properties:
+         Tags:
+           - Key: Name
+             Value:
+                Ref: instancename
+         AvailabilityZone:
+             Ref: availabilityzone
+         ImageId:
+             Ref: imageid
+         SubnetId:
+             Ref: subnetid
+         SecurityGroupIds:
+           - Ref: sgcreation
+         InstanceType:
+             Ref: instancetype
+         Keyname:
+             Ref: keyname
+         BlockDeviceMappings:
+           - DeviceName: /dev/sdb
+             Ebs:                  
+               VolumeType: gp2
+               VolumeSize: 8
+               DeleteOnTermination: true
+Outputs:
+  instanceid:
+      Description: Output of Instance id
+      Value:
+         Ref: instancecreation

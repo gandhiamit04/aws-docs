@@ -1,0 +1,25 @@
+
+- cloudformation:
+       stack_name: "{{ stackname }}"
+       region: "{{ nameofregion }}"
+       template: roles/network/files/network-cf.yaml
+       template_parameters:
+            vpcname: "{{ vpcname }}"
+            netcidr: "{{ netcidr }}"
+            firstpublicsubnetname: "{{ firstpublicsubnetname }}"
+            secondpublicsubnetname: "{{ secondpublicsubnetname }}"
+            firstprivatesubnetname: "{{ firstprivatesubnetname }}"
+            secondprivatesubnetname: "{{ secondprivatesubnetname }}" 
+            firstpublicsubnetavailabilityzone: "{{  firstpublicsubnetavailabilityzone }}"
+            secondpublicsubnetavailabilityzone: "{{ secondpublicsubnetavailabilityzone }}"
+            firstprivatesubnetavailabilityzone: "{{ firstprivatesubnetavailabilityzone }}"
+            secondprivatesubnetavailabilityzone: "{{ secondprivatesubnetavailabilityzone }}" 
+            firstpublicsubnetcidr: "{{ firstpublicsubnetcidr }}"
+            secondpublicsubnetcidr: "{{ secondpublicsubnetcidr }}"
+            firstprivatesubnetcidr: "{{ firstprivatesubnetcidr }}"
+            secondprivatesubnetcidr: "{{ secondprivatesubnetcidr }}"
+            routetablename: "{{ routetablename }}"
+            igwname: "{{ igwname }}"
+  register: twotiervpc
+- debug:
+    var: twotiervpc

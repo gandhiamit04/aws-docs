@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Internal Elb
+
+Parameters:
+  loadbalncername:
+      Type: String
+      Description: Enter the internal-loadbalancer name     
+  firstprivatesubnetid:
+      Type: String
+      Description: Enter the first private subnet id
+  secondprivatesubnetid:
+      Type: String
+      Description: Enter the second private subnet id
+  firstprivateinstanceid:
+      Type: String
+      Description: Enter the first private instances id to add to elb
+  secondprivateinstanceid:
+      Type: String
+      Description: Enter the second private instances id to add to elb
+  elbsgname:
+      Type: String
+      Description: Enter sg name
+  vpcid:
+      Type: String
+      Description: Enter the vpcid
+  sgcidr:
+      Type: String
+      Description: cidr for sg rule     
+
+Resources:
+  sgcreation:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+         GroupName: 
+             Ref: elbsgname
+         GroupDescription: intername loadbalancer securitygroup
+         VpcId:
+             Ref: vpcid
+         SecurityGroupIngress:
+           - FromPort: 80
+             ToPort: 80
+             IpProtocol: tcp
+             CidrIp:
+               Ref:  sgcidr   
+  internalloadbalncercreation:
+      Type: AWS::ElasticLoadBalancing::LoadBalancer
+      Properties:
+         LoadBalancerName:
+             Ref: loadbalncername
+         Scheme: internal
+         Subnets:
+           - Ref: firstprivatesubnetid
+           - Ref: secondprivatesubnetid
+         Instances:
+           - Ref: firstprivateinstanceid
+           - Ref: secondprivateinstanceid
+         SecurityGroups:
+           - Ref: sgcreation
+         Listeners:
+           - InstancePort: 80
+             LoadBalancerPort: 80
+             Protocol: HTTP
+         HealthCheck:
+             HealthyThreshold: 3
+             UnhealthyThreshold: 5
+             Timeout: 5
+             Target: HTTP:80/index.html       
+             Interval: 30      
+Outputs:
+   elbid:
+     Description: Internal elb id
+     Value:
+       Fn::GetAtt: [ 'internalloadbalncercreation', 'DNSName' ]

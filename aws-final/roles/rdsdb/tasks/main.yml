@@ -1,0 +1,18 @@
+- cloudformation:
+    region: "{{ nameofregion }}"
+    stack_name: "{{ stackname }}"
+    state: present
+    template: roles/rdsdb/files/rdsdb.yaml
+    template_parameters:
+      vpcid: "{{ twotiervpc.stack_outputs.vpcid  }}"
+      firstsubnetid: "{{ twotiervpc.stack_outputs.firstprivatesubnetid }}"
+      secondsubnetid: "{{ twotiervpc.stack_outputs.secondprivatesubnetid }}"
+      dbsgname: "{{ dbsgname }}"
+      DBName: "{{ DBName }}"
+      DBAllocatedStorage: "{{ DBAllocatedStorage }}"
+      DBInstanceClass: "{{ DBInstanceClass }}"
+      DBUser: "{{ DBUser }}"
+      DBPassword: "{{ DBPassword }}"
+  register: dbinstance
+- debug:
+    var: dbinstance

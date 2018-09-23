@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  vpcid:
+     Type: String
+     Description: Enter the first subnet name
+  firstsubnetid:
+     Type: String
+     Description: Enter the first subnet name
+  secondsubnetid:
+     Type: String
+     Description: Enter the second subnet 
+  dbsgname:
+     Type: String
+     Description: Enter the second subnet
+  DBName:
+     Type: String
+     Description: Enter the second subnet
+  DBAllocatedStorage:
+     Type: String
+     Description: Enter the second subnet
+  DBInstanceClass:
+     Type: String
+     Description: Enter the second subnet
+  DBUser:
+     Type: String
+     Description: Enter the second subnet   
+  DBPassword:
+     Type: String
+     Description: Enter the second subnet  
+Resources: 
+  myDBSubnetGroup: 
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: "description"
+      SubnetIds: 
+        - Ref: firstsubnetid
+        - Ref: secondsubnetid
+      Tags: 
+        - 
+          Key: "Name"
+          Value: "dbsubnetgroup"
+  sgcreation:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+       GroupName:
+          Ref: dbsgname
+       GroupDescription: SecurityGroup for Webserver
+       VpcId:
+          Ref: vpcid
+       SecurityGroupIngress:
+         - FromPort: 3306
+           ToPort: 3306
+           CidrIp: 10.54.0.0/16
+           IpProtocol: tcp
+  MyDB: 
+    Type: AWS::RDS::DBInstance
+    Properties: 
+      DBName: 
+        Ref: "DBName"
+      AllocatedStorage: 
+        Ref: "DBAllocatedStorage"
+      DBSubnetGroupName:
+        Ref: myDBSubnetGroup
+      VPCSecurityGroups: 
+        - Ref: sgcreation
+      DBInstanceClass: 
+        Ref: "DBInstanceClass"
+      Engine: "MySQL"
+      EngineVersion: "5.7.22"
+      MasterUsername: 
+        Ref: "DBUser"
+      MasterUserPassword: 
+        Ref: "DBPassword"
+      Tags: 
+        - 
+          Key: "Name"
+          Value: "My SQL Database"
+    DeletionPolicy: "Delete"
+Outputs:
+  InstanceId:
+    Description: InstanceId of the newly created RDS Instance
+    Value: !GetAtt MyDB.Endpoint.Address

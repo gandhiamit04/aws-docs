@@ -1,0 +1,38 @@
+---
+ - name: adding the credentials 
+   hosts: uservm
+   become: yes
+   become_method: sudo
+   tasks:
+     - name: updating all the repos
+       apt: update_cache=yes           
+     - name: installing unzip 
+       apt: name=unzip state=latest
+     - name: installing perl packages
+       apt: name=libwww-perl state=latest
+     - name: installng perl packages
+       apt: name=libdatetime-perl state=latest
+     - name: downloading all the perl packages for the repository
+       get_url:
+          url: http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip
+          dest: /home/ubuntu
+     - name: unzip the downloaded file
+       command: unzip /home/ubuntu/CloudWatchMonitoringScripts-1.2.1.zip
+     - name: removinf the zip file
+       file: name=/home/ubuntu/CloudWatchMonitoringScripts-1.2.1.zip state=absent    
+     - name: creating file in perl files directory and adding credentials to that file
+       blockinfile:
+            create: yes
+            dest: /home/ubuntu/aws-scripts-mon/awscreds.conf  
+            state: present
+            block: |
+                AWSAccessKeyId={{ accesskey }}
+                AWSSecretKey={{ secretkey }}
+     - name: validating the credentials 
+       command: perl /home/ubuntu/aws-scripts-mon/mon-put-instance-data.pl --mem-util --verify --verbose
+     - name: Passing the available Memory Information to cloudwatch
+       command: perl /home/ubuntu/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used-incl-cache-buff --mem-used --mem-avail   
+     - name: Passing The Available disk information to cloudwatch
+       command: perl /home/ubuntu/aws-scripts-mon/mon-put-instance-data.pl --disk-path=/home --disk-space-util --disk-space-used --disk-space-avail
+     - name: Passing The Available Swap information to cloudwatch
+       command: perl /home/ubuntu/aws-scripts-mon/mon-put-instance-data.pl --swap-util --swap-used

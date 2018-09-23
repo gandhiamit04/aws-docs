@@ -1,0 +1,14 @@
+---
+  - name: Ansible For Creating Cloudfront with ELB
+    hosts: localhost
+    tasks:
+      - cloudformation:
+             aws_access_key: "{{ accesskey }}"
+             aws_secret_key: "{{ secretkey }}"
+             region: "{{ nameofregion }}"
+             stack_name: "{{ stackname }}"
+             template: "{{ templatepath }}"
+             state: present 
+             template_parameters:
+                   elbid: "{{ elbid }}"
+                   elbdomainname: "{{ elbdomainname }}"     

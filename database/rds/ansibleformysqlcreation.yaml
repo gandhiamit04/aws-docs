@@ -1,0 +1,27 @@
+---
+  - name: creating rds mysqldatabase
+    hosts: localhost
+    tasks:
+      - cloudformation:
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            stack_name: "{{ stackname }}"
+            region: "{{ nameofregion }}"
+            state: present
+            template: "{{ templatepath }}"
+            template_parameters:
+                 dbstoragesize: "{{ dbstoragesize }}"
+                 availabilityzone: "{{ availabilityzone }}"
+                 dbidentifiername: "{{ dbinstanceidentifiername }}"
+                 dbname: "{{ dbname }}"
+                 masterusername: "{{ materusername }}"
+                 masterpassword: "{{ masterpassword }}"
+                 dbport: "{{ dbport }}"
+                 dbengine: "{{ dbenginename }}"
+                 vpcid: "{{ vpcid }}"
+                 dbsecuritygroupname: "{{ dbsgname }}"
+                 instancesgid: "{{ sourcesgid }}"
+                 dbinstancetype: "{{ dbinstancetype }}"
+                 subnetgroupname: "{{ dbsubnetgroupname }}" 
+                 firstsubnetid: "{{ firstsubnetid }}"
+                 secondsubnetid: "{{ secondsubnetid }}"        

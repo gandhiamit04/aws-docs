@@ -1,0 +1,52 @@
+## Template Will Send SMS Form Sns If The Specified Instance is Gets Terminated 
+
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Sending An Msg Form Sns If The State of Instance Get Changed To Running
+
+Parameters:
+   topicname:
+       Type: String
+       Description: Enter the sns topic name
+   rulename:
+       Type: String
+       Description: Enter the event rule name
+   emailaddress:
+       Type: String
+       Description: Enter the email address to get notification 
+   instanceid:
+       Type: String
+       Description: Enter the instance id to monitor the state    
+
+Resources:
+   snscreation:
+       Type: AWS::SNS::Topic
+       Properties:
+          TopicName:
+              Ref: topicname
+          Subscription:
+            - Endpoint:
+                 Ref: emailaddress
+              Protocol: email
+                  
+   eventcreation:
+       Type: AWS::Events::Rule
+       Properties:
+           Description: Event Which is For Looking State of Instance
+           Name:
+             Ref: rulename
+           EventPattern:
+             Source:
+               - aws.ec2
+             detail-type: 
+               - EC2 Instance State-change Notification
+             detail:
+                 state:
+                   - terminated
+                 instance-id:
+                   - Ref: instanceid
+           State: ENABLED  
+           Targets:
+             - Arn: 
+                 Ref: snscreation
+               Id: statechange

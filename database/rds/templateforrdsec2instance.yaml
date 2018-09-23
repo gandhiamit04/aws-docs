@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Template is For Creating Ec2 instance 
+
+Parameters:
+   sgname:
+       Type: String
+       Description: Enter the sgname
+   vpcid:
+       Type: String
+       Description: Enter the vpcid  
+   imageid:
+       Type: String
+       Description: Enter the amiid to launch an instance
+   instancename:
+       Type: String
+       Description: Enter the ec2instancename
+   availabilityzone:
+       Type: String
+       Description: Enter the availabilityzone to launch instance
+   subnetid:
+       Type: String
+       Description: Enter the subnet to launchinstance    
+   instancetype:
+       Type: String
+       Description: Enter the instancetype for the instance
+   keyname:
+       Type: String
+       Description: Enter the keyname to attach to instance 
+
+Resources:
+   instancesgcreation:
+       Type: AWS::EC2::SecurityGroup
+       Properties:
+           VpcId:
+               Ref: vpcid
+           GroupName:
+               Ref: sgname
+           GroupDescription: sg for connecting to instance 
+           SecurityGroupIngress:
+             - IpProtocol: tcp
+               FromPort: 22
+               ToPort: 22
+               CidrIp: 0.0.0.0/0
+   instancecreation:
+       Type: AWS::EC2::Instance
+       Properties:
+           Tags:
+             - Key: Name
+               Value:
+                 Ref: instancename
+           AvailabilityZone:
+               Ref: availabilityzone
+           ImageId:
+               Ref: imageid
+           SubnetId:
+               Ref: subnetid
+           InstanceType: 
+               Ref: instancetype
+           KeyName:
+               Ref: keyname
+           BlockDeviceMappings:
+             - DeviceName: /dev/sda1
+               Ebs: 
+                 VolumeType: gp2
+                 VolumeSize: 8
+                 DeleteOnTermination: true
+           SecurityGroupIds:
+             - Ref: instancesgcreation 
+Outputs:
+   instancepublicip:
+      Description: output of Instancepublicip
+      Value:
+         Fn::GetAtt: [ instancecreation, PublicIp ]                              

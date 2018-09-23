@@ -1,0 +1,24 @@
+---
+ - name: Creating AutoscalingGroup
+   hosts: localhost
+   tasks:
+     - cloudformation:
+           aws_access_key: "{{ accesskey }}"
+           aws_secret_key: "{{ secretkey }}"
+           region: "{{ nameofregion }}"
+           state: present
+           stack_name: "{{ stackname }}"
+           template: "{{ templatepath }}"
+           template_parameters: 
+                sgname: "{{ sgname }}"
+                vpcid: "{{ vpcid }}"
+                imageid: "{{ imageid }}"
+                instancetype: "{{ instancetype }}"
+                keyname: "{{ keyname }}"
+                firstalarmname: "{{ lowcpualarmname }}"
+                secondalarmname: "{{ highcpualarmname }}"
+                firstsubnetid: "{{ firstsubnetid }}"
+                secondsubnetid: "{{ secondsubnetid }}"
+                minsize: "{{ minsize }}"
+                maxsize: "{{ maxsize }}"
+                instancename: "{{ instancename }}"

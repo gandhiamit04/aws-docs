@@ -1,0 +1,26 @@
+--- 
+ - name: Ansible for launching instances in subnets
+   hosts: localhost
+   tasks:
+     - cloudformation:
+         aws_access_key: "{{ accesskey }}"
+         aws_secret_key: "{{ secretkey }}"
+         stack_name: "{{ item[0] }}"
+         region: "{{ nameofregion }}"
+         state: present 
+         template: "{{ templatepath }}"
+         template_parameters:
+             instancename: "{{ item[1] }}"
+             availabilityzone: "{{ item[2] }}"
+             subnetid: "{{ item[3] }}"
+             keyname: "{{ keyname }}"
+             imageid: "{{ imageid }}"
+             instancetype: "{{ instancetype }}"
+             vpcid: "{{ vpcid }}"
+             sgname: "{{ item[4] }}"
+       with_together:
+          - "{{ stacknames }}"
+          - "{{ instancenames }}"
+          - "{{ availabilityzones }}"
+          - "{{ subnetids }}"
+          - "{{ sgnames }}"

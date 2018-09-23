@@ -1,0 +1,20 @@
+---
+ - name: Creating Instance 
+   hosts: localhost
+   tasks:
+     - cloudformation:
+          aws_access_key: "{{ accesskey }}"
+          aws_secret_key: "{{ secretkey }}"
+          region: "{{ nameofregion }}"
+          stack_name: "{{ stackname }}"
+          state: present
+          template: "{{ templatepath }}"
+          template_parameters:
+              instancesgname: "{{ sgname }}"
+              vpcid: "{{ vpcid  }}"
+              imageid: "{{ imageid }}"
+              instancetype: "{{ instancetype }}"
+              subnetid: "{{ subnetid }}"
+              availabilityzone: "{{ availabilityzone }}"
+              instancename: "{{ instancename }}"
+              keyname: "{{ keyname }}"

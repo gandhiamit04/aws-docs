@@ -1,0 +1,18 @@
+---
+  - name: creating volume form snapshot
+    hosts: localhost
+    tasks:
+     - cloudformation:
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            region: "{{ nameofregion }}"
+            stack_name: "{{ stackname }}"
+            template: "{{ templatepath }}"
+            state: present
+            template_parameters:
+                 volumename: "{{ volumename }}"
+                 volumesize: "{{ volumesize }}"
+                 instanceid: "{{ instanceid }}"
+                 snapshotid: "{{ snapshotid }}"
+                 availabilityzone: "{{ availabilityzone }}"
+                 devicetype: "{{ devicetype }}" 

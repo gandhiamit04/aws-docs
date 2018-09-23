@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Instance and Adding Alarams For CPUUtilization, NetworkPackets, Disk I/O
+
+Parameters:
+  instanceid:
+    Type: String
+    Description: Enter the instancid of The Machine To Monitor Metrics 
+  snstopicname:
+    Type: String
+    Description: Enter the snstopic name
+  emailaddress:
+    Type: String
+    Description: Enter the emailaddress to get messages
+
+Resources:
+   snscreation:
+       Type: AWS::SNS::Topic
+       Properties:
+           TopicName:
+               Ref: snstopicname
+           Subscription:
+              - Endpoint: 
+                   Ref: emailaddress
+                Protocol: email
+   cpualarm:
+       Type: AWS::CloudWatch::Alarm
+       Properties:
+           AlarmName: cpuutilalarm
+           AlarmDescription: Alarm Sends The Messgae if The Cpuutilization is Greater than 80Percent 
+           AlarmActions:
+             - Ref: snscreation
+           Namespace: AWS/EC2
+           Dimensions:
+             - Name: InstanceId
+               Value:
+                  Ref: instanceid
+           MetricName: CPUUtilization 
+           Statistic: Average
+           Threshold: 80
+           ComparisonOperator: GreaterThanOrEqualToThreshold
+           Period: 300
+           EvaluationPeriods: 1
+           Unit: Percent
+   diskreadios:
+       Type: AWS::CloudWatch::Alarm
+       Properties:
+           AlarmName: diskreadiopsalarmname
+           AlarmDescription: Alarm Sends Msg If The DiskRead I/ops Count is 25
+           AlarmActions:
+             - Ref: snscreation
+           Namespace: AWS/EC2
+           Dimensions:
+             - Name: InstanceId
+               Value:
+                  Ref: instanceid
+           MetricName: DiskReadOps
+           Threshold: 25           
+           Statistic: Average
+           ComparisonOperator: GreaterThanOrEqualToThreshold
+           Period: 300
+           EvaluationPeriods: 1
+           Unit: Count
+   diskwriteops:
+       Type: AWS::CloudWatch::Alarm
+       Properties:
+           AlarmName: diskwriteiopsalarmname
+           AlarmDescription: Alarm Sends Msg If The DiskWrite Operations Count is 25
+           AlarmActions:
+             - Ref: snscreation
+           Namespace: AWS/EC2
+           MetricName: DiskWriteOps
+           Dimensions:
+             - Name: InstanceId
+               Value:
+                  Ref: instanceid
+           Statistic: Average
+           Threshold: 25      
+           ComparisonOperator: GreaterThanOrEqualToThreshold
+           Period: 300               
+           EvaluationPeriods: 1
+           Unit: Percent
+                           
+             

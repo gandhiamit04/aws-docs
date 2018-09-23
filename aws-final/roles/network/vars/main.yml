@@ -1,0 +1,19 @@
+---
+stackname: twotier
+nameofregion: us-east-1
+vpcname: testvpc
+netcidr: 10.54.0.0/16
+igwname: public-igw
+firstpublicsubnetname: web-public-sn1
+firstpublicsubnetavailabilityzone: us-east-1a
+firstpublicsubnetcidr: 10.54.1.0/24
+secondpublicsubnetname: web-public-sn2
+secondpublicsubnetavailabilityzone: us-east-1b
+secondpublicsubnetcidr: 10.54.2.0/24
+routetablename: public-router
+firstprivatesubnetname: app-private-sn1
+firstprivatesubnetcidr: 10.54.3.0/24
+firstprivatesubnetavailabilityzone: us-east-1a
+secondprivatesubnetname: app-private-sn2
+secondprivatesubnetcidr: 10.54.4.0/24
+secondprivatesubnetavailabilityzone: us-east-1d

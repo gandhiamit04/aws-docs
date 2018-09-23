@@ -1,0 +1,9 @@
+- ec2_ami:
+    region: "{{ nameofregion }}"
+    instance_id: "{{ amiinstance.stack_outputs.instanceidoutput }}"
+    state: present
+    name: "{{ nameofimage }}-{{ amiversion }}"
+    wait: yes
+  register: webami
+- debug:
+    var: webami

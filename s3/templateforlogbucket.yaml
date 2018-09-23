@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Two Buckets And Enabling Logging For The Primay Bucket
+
+Parameters:
+   sourcebucketname:
+        Type: String
+        Description: Enter The Bucket Name To Which You Enable Logging
+   targetbucketname:
+        Type: String
+        Description: Enter The Bucket Name To Which Store The Logs
+   logfileprefix:
+        Type: String
+        Description: Enter Prefix for Log storage in Bucket   
+
+Resources:
+  sourcebucketcreation:
+      Type: AWS::S3::Bucket
+      Properties:
+          BucketName: 
+               Ref: sourcebucketname
+          AccessControl: PublicRead
+          LoggingConfiguration:
+               DestinationBucketName: 
+                     Ref: targetbucketcreation
+               LogFilePrefix:
+                     Ref: logfileprefix
+  targetbucketcreation:
+      Type: AWS::S3::Bucket
+      Properties:
+          BucketName: 
+               Ref: targetbucketname 
+          AccessControl: LogDeliveryWrite 
+Outputs:
+   logbucketname:
+      Description: output of Logbucketname which is enabled log configuration
+      Value: 
+         Ref: sourcebucketcreation

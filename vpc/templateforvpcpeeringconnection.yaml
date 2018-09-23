@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Peering Connection
+
+Parameters:
+  requestervpcid:
+      Type: String
+      Description: Pass The Requester NetworkId
+  requesternetworkcidr:
+      Type: String
+      Description: Pass The Requester Network Cidrblock
+  requesterroutetableid:
+      Type: String
+      Description: Pass The Requester Routetableid 
+  acceptervpcid:
+      Type: String
+      Description: Pass The Accepter NetworkId
+  accepternetworkcidr:
+      Type: String
+      Description: Pass The Accepter Network Cidrblock
+  accepterroutetableid:
+      Type: String
+      Description: Pass The Accepter Routetableid
+  peeringname:
+      Type: String
+      Description: Enter The Peering Connection Name
+ 
+Resources:
+  peeringconnection:
+      Type: AWS::EC2::VPCPeeringConnection
+      Properties:
+           PeerVpcId:
+              Ref: acceptervpcid
+           VpcId:
+              Ref: requestervpcid
+           Tags:
+              - Key: Name
+                Value:
+                   Ref: peeringname
+  requestrouteaddition:
+      Type: AWS::EC2::Route
+      Properties:
+          RouteTableId:
+              Ref: requesterroutetableid
+          DestinationCidrBlock:
+              Ref: accepternetworkcidr
+          VpcPeeringConnectionId:
+              Ref: peeringconnection
+  accepterrouteaddition:
+      Type: AWS::EC2::Route
+      Properties:
+          RouteTableId:
+              Ref: accepterroutetableid
+          DestinationCidrBlock:
+              Ref: requesternetworkcidr
+          VpcPeeringConnectionId:
+              Ref: peeringconnection
+
+Outputs:
+  peeringid:
+     Description: Output of Peering Connection id
+     Value:
+        Ref: peeringconnection

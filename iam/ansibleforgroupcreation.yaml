@@ -1,0 +1,15 @@
+---
+  - name: Ansible for creation of group and adding policy to group
+    hosts: localhost
+    tasks:
+     - cloudformation:
+          aws_access_key: "{{ accesskey }}"
+          aws_secret_key: "{{ secretkey }}"
+          stack_name: "{{ stackname }}"
+          region: "{{ nameofregion }}"
+          state: present
+          template: "{{ templatepath }}"
+          template_parameters:
+               groupname: "{{ groupname }}"
+               accountid: "{{ accountid }}"
+

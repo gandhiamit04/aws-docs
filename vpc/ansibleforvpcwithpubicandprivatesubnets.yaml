@@ -1,0 +1,27 @@
+---
+ - name: Ansible Playbook for Creating Vpc With Two Private and Two Public Subents
+   hosts: localhost
+   tasks:
+     - cloudformation:
+            aws_access_key: "{{ accesskey }}" 
+            aws_secret_key: "{{ secretkey }}"
+            stack_name: "{{ stackname }}"
+            region: "{{ nameofregion }}"
+            template: "{{ templatepath }}"
+            template_parameters:
+                 networkname: "{{ networkname }}"
+                 netcidr: "{{ netcidr }}"
+                 firstpublicsubnetname: "{{ firstpublicsubnetname }}"
+                 secondpublicsubnetname: "{{ secondpublicsubnetname }}"
+                 firstprivatesubnetname: "{{ firstprivatesubnetname }}"
+                 secondprivatesubnetname: "{{ secondprivatesubnetname }}" 
+                 firstpublicsubnetavailabilityzone: "{{  firstpublicsubnetavailabilityzone }}"
+                 secondpublicsubnetavailabilityzone: "{{ secondpublicsubnetavailabilityzone }}"
+                 firstprivatesubnetavailabilityzone: "{{ firstprivatesubnetavailabilityzone }}"
+                 secondprivatesubnetavailabilityzone: "{{ secondprivatesubnetavailabilityzone }}" 
+                 firstpublicsubnetcidr: "{{ firstpublicsubnetcidr }}"
+                 secondpublicsubnetcidr: "{{ secondpublicsubnetcidr }}"
+                 firstprivatesubnetcidr: "{{ firstprivatesubnetcidr }}"
+                 secondprivatesubnetcidr: "{{ secondprivatesubnetcidr }}"
+                 routetablename: "{{ routetablename }}"
+                 igwname: "{{ igwname }}"

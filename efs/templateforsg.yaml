@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Vpc and Two Subnets and Efs attaching subnets to Efs
+Parameters:
+  vpcid:
+    Type: String
+    Description: Enter The vpcid 
+Resources:
+   instancesgcreation:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+           GroupName: instancesg
+           GroupDescription: This SecurityGroup is Ec2 SecurityGroup
+           VpcId:
+              Ref: vpcid
+           SecurityGroupIngress:
+              - IpProtocol: 'tcp'
+                FromPort: 22
+                ToPort: 22
+                CidrIp: 0.0.0.0/0
+   efssgcreation:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+           GroupName: efssg
+           GroupDescription: This SecurityGroup is belongs to efs
+           VpcId:
+              Ref: vpcid
+           SecurityGroupIngress:
+              - IpProtocol: 'tcp'
+                FromPort: 2049
+                ToPort: 2049
+                SourceSecurityGroupId: 
+                      Ref: instancesgcreation
+Outputs:
+   sgid:
+     Description: output of sgid
+     Value:
+       Ref: instancesgcreation

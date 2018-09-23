@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating mysql database
+
+Parameters:
+  dbstoragesize:
+      Type: String
+      Description: Enter the Allocated Storage for Database
+  availabilityzone:
+      Type: String
+      Description: Enter the availablitizone for the database
+  dbidentifiername:
+      Type: String
+      Description: Enter the instanceidentifiername
+  dbname:
+      Type: String
+      Description: Enter the dbname 
+  masterusername:
+      Type: String
+      Description: Enter the username for the database
+  masterpassword:
+      Type: String
+      Description: Enter the masterpassword for the database
+  dbport:
+      Type: String
+      Description: Enter the dbport
+  dbengine:
+      Type: String
+      Description: Database engine name
+      Default: mysql
+      AllowedValues:
+         - mysql
+  vpcid:
+      Type: String
+      Description: Enter the vpcid 
+  dbsecuritygroupname:
+      Type: String
+      Description: Enter the dbsecuritygroupname
+  instancesgid:
+      Type: String
+      Description: Enter the ec2 instance secuirity group id
+  dbinstancetype:
+      Type: String
+      Description: Enter the dbinstance type 
+      Default: db.t2.micro
+      AllowedValues:
+         - db.t2.micro
+         - db.t2.small
+  subnetgroupname:
+      Type: String
+      Description: Enter the subnetgroup name
+  firstsubnetid:
+      Type: String
+      Description: Enter The first availabilityzone subnetid to create rdssubnetgorup
+  secondsubnetid:
+      Type: String
+      Description: Enter the second availablitiyzone subnetid to create rdssubnetgroup     
+
+Resources:
+   rdssgcreation:
+       Type: AWS::EC2::SecurityGroup
+       Properties:
+          GroupName:
+               Ref: dbsecuritygroupname
+          GroupDescription: rdssg
+          VpcId:
+               Ref: vpcid
+          SecurityGroupIngress:
+             - IpProtocol: tcp
+               FromPort: 3306
+               ToPort: 3306
+               SourceSecurityGroupId:
+                    Ref: instancesgid
+   subnetgroupcreation:
+       Type: AWS::RDS::DBSubnetGroup
+       Properties:
+          DBSubnetGroupDescription: rdssubnetgroup
+          Tags:
+            - Key: Name
+              Value:
+                 Ref: subnetgroupname
+          SubnetIds:
+            - Ref: firstsubnetid   
+            - Ref: secondsubnetid      
+   rdscreation:
+       Type: AWS::RDS::DBInstance
+       Properties:
+          AllocatedStorage:
+              Ref: dbstoragesize
+          AvailabilityZone:
+              Ref: availabilityzone
+          AutoMinorVersionUpgrade: true
+          DBInstanceClass:
+              Ref: dbinstancetype 
+          DBInstanceIdentifier:
+              Ref: dbidentifiername
+          DBName:
+              Ref: dbname
+          VPCSecurityGroups:
+            - Ref: rdssgcreation
+          Engine:
+              Ref: dbengine
+          MasterUsername:
+              Ref: masterusername
+          MasterUserPassword:
+              Ref: masterpassword
+          MultiAZ: false
+          Port:
+              Ref: dbport
+          PubliclyAccessible: no
+          StorageType: gp2
+          DBSubnetGroupName:
+              Ref: subnetgroupcreation 
+          
+Outputs:
+  databaseendpoint:
+      Description: output of database endpoint
+      Value:
+         Fn::GetAtt: [ rdscreation, Endpoint.Address ] 
+ 
+         
+        
+                                           

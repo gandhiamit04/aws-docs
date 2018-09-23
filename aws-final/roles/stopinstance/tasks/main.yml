@@ -1,0 +1,6 @@
+- name: Stop the instances 
+  ec2:
+    instance_ids: "{{ amiinstance.stack_outputs.instanceidoutput }}"
+    region: '{{ region }}'
+    state: stopped
+    wait: True

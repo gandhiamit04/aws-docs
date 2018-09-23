@@ -1,0 +1,12 @@
+---
+ - name: creating the snapshot of the volumedevice
+   hosts: localhost
+   tasks:
+     - ec2_snapshot:
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            region: "{{ nameofregion }}"
+            state: present
+            instance_id: "{{ instanceid }}"
+            device_name: "{{ devicename }}"
+            

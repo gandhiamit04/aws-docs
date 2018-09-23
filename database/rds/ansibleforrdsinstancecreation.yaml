@@ -1,0 +1,20 @@
+---
+  - name: ansible for rds ec2 instance launching
+    hosts: localhost
+    tasks:
+      - cloudformation:
+              aws_access_key: "{{ accesskey }}"
+              aws_secret_key: "{{ secretkey }}"
+              region: "{{ nameofregion }}"
+              stack_name: "{{ stackname }}"
+              state: present
+              template: "{{ templatepath }}"
+              template_parameters: 
+                   sgname: "{{ sgname }}"
+                   vpcid: "{{ vpcid }}"
+                   imageid: "{{ imageid }}"
+                   instancename: "{{ instancename }}"
+                   availabilityzone: "{{ availabilityzone }}"
+                   subnetid: "{{ subnetid }}"
+                   instancetype: "{{ instancetype }}"
+                   keyname: "{{ keyname }}"

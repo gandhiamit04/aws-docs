@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating The Bucket For Basic operations
+
+Parameters:
+  bucketname:
+     Type: String
+     Description: Enter The bucketname
+
+Resources:
+  bucketcreation:
+     Type: AWS::S3::Bucket
+     Properties:
+       BucketName:
+             Ref: bucketname
+Outputs:
+   nameofthebucket:
+      Description: output of bucketname
+      Value:
+        Ref: bucketcreation

@@ -1,0 +1,25 @@
+---
+  - name: Creating efs with ansible
+    hosts: localhost
+    tasks:
+      - cloudformation:
+             aws_access_key: "{{ accesskey }}"
+             aws_secret_key: "{{ secretkey }}"
+             region: "{{ nameofregion }}"
+             stack_name: "{{ stackname }}"
+             template: "{{ templatepath }}"
+             state: present
+             template_parameters:
+                  networkname: "{{ networkname }}"
+                  firstsubnetname: "{{ firstsubnetname }}"
+                  secondsubnetname: "{{ secondsubnetname }}"
+                  networkcidr: "{{ networkcidr }}"
+                  firstsubnetcidr: "{{ firstsubnetcidr }}"
+                  secondsubnetcidr: "{{ secondsubnetcidr }}"
+                  igwname: "{{ igwname }}"
+                  firstsubnetavailabilityzone: "{{ firstsubnetavailabilityzone }}"
+                  secondsubnetavailabilityzone: "{{ secondsubnetavailabilityzone }}"
+                  routetablename: "{{ routetablename }}"
+                  efsname: "{{ efsname }}"
+                  sgname: "{{ sgname }}"
+

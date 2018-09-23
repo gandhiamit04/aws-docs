@@ -1,0 +1,23 @@
+- cloudformation:
+      region: "{{ nameofregion }}"
+      state: present
+      stack_name: "{{ stackname }}"
+      template: roles/autoscaling/files/autoscaling.yml
+      template_parameters: 
+           elbsgname: "{{ elbsgname }}" 
+           elbname: "{{ elbname }}" 
+           sgname: "{{ autoinstsgname }}"
+           vpcid: "{{ twotiervpc.stack_outputs.vpcid }}"
+           imageid: "{{ webami.image_id }}"
+           instancetype: "{{ instancetype }}"
+           keyname: "{{ keyname }}"
+           firstalarmname: "{{ lowcpualarmname }}"
+           secondalarmname: "{{ highcpualarmname }}"
+           firstsubnetid: "{{ twotiervpc.stack_outputs.firstpublicsubnetid }}"
+           secondsubnetid: "{{ twotiervpc.stack_outputs.secondpublicsubnetid }}"
+           minsize: "{{ minsize }}"
+           maxsize: "{{ maxsize }}"
+           scaledownsize: "{{ scaledownsize }}"
+           scaleupsize: "{{ scaleupsize }}"
+           instancename: "{{ instancename }}"
+  register: autoscaleweb

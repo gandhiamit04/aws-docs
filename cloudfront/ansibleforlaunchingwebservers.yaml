@@ -1,0 +1,26 @@
+---
+  - name: Ansible For Creating The Multiple Web instance
+    hosts: localhost
+    tasks:
+      - cloudformation:
+             aws_access_key: "{{ accesskey }}"
+             aws_secret_key: "{{ secretkey }}"
+             region: "{{ nameofregion }}"
+             stack_name: "{{ item[0] }}"
+             state: present
+             template: "{{ templatepath }}"
+             template_parameters: 
+                  sgname: "{{ item[1] }}"
+                  vpcid: "{{ vpcid }}"
+                  instancename: "{{ item[2] }}"
+                  imageid: "{{ imageid }}"
+                  instancetype: "{{ instancetype }}"
+                  subnetid: "{{ item[3] }}"
+                  availabilityzone: "{{ item[4] }}"
+                  keyname: "{{ keyname }}"
+        with_together:
+           - "{{ stacknames }}"
+           - "{{ sgnames }}"
+           - "{{ instancenames }}"
+           - "{{ subnetids }}"
+           - "{{ availabilityzones }}"

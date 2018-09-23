@@ -1,0 +1,24 @@
+- cloudformation:
+    region: "{{ nameofregion }}"
+    stack_name: "{{ stackname }}"
+    state: present
+    template: roles/amiinstance/files/amiinstance-cf.yaml
+    template_parameters:
+      instancesgname: "{{ sgname }}"
+      vpcid: "{{ twotiervpc.stack_outputs.vpcid  }}"
+      imageid: "{{ imageid }}"
+      instancetype: "{{ instancetype }}"
+      subnetid: "{{ twotiervpc.stack_outputs.firstpublicsubnetid }}"
+      availabilityzone: "{{ availabilityzone }}"
+      instancename: "{{ instancename }}"
+      keyname: "{{ keyname }}"
+  register: amiinstance
+- debug:
+    var: amiinstance
+- add_host: 
+    name: "{{ amiinstance.stack_outputs.publicdns }}"
+    groups: webami
+    ansible_user: ec2-user
+    instance_name: "{{ amiinstance.stack_outputs.publicdns }}"
+    ansible_ssh_private_key_file: roles/amiinstance/files/webkey.pem
+    ansible_become: yes

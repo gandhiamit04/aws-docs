@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating Elastic Load Balancer
+Parameters:
+  loadbalncername:
+     Type: String
+     Description: Enter the Loadbalancer name
+  firstpublicsubnetid:
+     Type: String
+     Description: Enter the first public subnet id
+  secondpublicsubnetid:
+     Type: String
+     Description: Enter the second public subnet id
+  sgname:
+     Type: String
+     Description: Enter the sg name
+  vpcid: 
+     Type: String
+     Description: Enter the vpc id
+  firstinstanceid:
+     Type: String
+     Description: Enter the first instance id which is in public subnet
+  secondinstanceid:
+     Type: String
+     Description: Enter the second instance id which is in public subnet
+
+Resources:
+  sgcreation:
+     Type: AWS::EC2::SecurityGroup
+     Properties:
+        GroupName: 
+            Ref: sgname
+        GroupDescription: sg for external elb
+        VpcId:
+            Ref: vpcid
+        SecurityGroupIngress:
+          - FromPort: 80
+            ToPort: 80
+            IpProtocol: tcp
+            CidrIp: 0.0.0.0/0
+  elbcreation:
+     Type: AWS::ElasticLoadBalancing::LoadBalancer
+     Properties:
+         LoadBalancerName:
+              Ref: loadbalncername
+         Subnets:
+            - Ref: firstpublicsubnetid 
+            - Ref: secondpublicsubnetid
+         SecurityGroups:
+            - Ref: sgcreation
+         Instances:
+            - Ref: firstinstanceid
+            - Ref: secondinstanceid
+         Listeners:
+            - InstancePort: 80
+              LoadBalancerPort: 80
+              Protocol: HTTP
+         HealthCheck:
+             HealthyThreshold: 3
+             UnhealthyThreshold: 5
+             Timeout: 5
+             Target: HTTP:80/index.html       
+             Interval: 30

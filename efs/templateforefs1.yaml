@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Vpc and Two Subnets and Efs attaching subnets to Efs
+
+Parameters:
+   firstsubnetid:
+      Type: String
+      Description: Enter The firstsubnet Name
+   secondsubnetid:
+      Type: String
+      Description: Enter The secondsubnet Name
+   efsname:
+      Type: String
+      Description: Enter The efs name
+   efsperfomancemode:
+      Type: String
+      Description: Enter the efs mode
+      Default: generalPurpose
+      AllowedValues:
+         - generalPurpose
+         - maxIO    
+   sgid:
+      Type: String
+      Description: enter the sgname
+Resources:
+   efscreation:
+        Type: AWS::EFS::FileSystem
+        Properties:
+           FileSystemTags:
+              - Key: Name
+                Value:
+                   Ref: efsname
+           PerformanceMode:
+                   Ref: efsperfomancemode
+   efsmounttagrgetwithfirstsubnet:
+        Type: AWS::EFS::MountTarget
+        Properties:
+           FileSystemId:
+                Ref: efscreation
+           SubnetId:
+                Ref: firstsubnetid
+           SecurityGroups:
+              - Ref: sgid
+   efsmounttargetwithsecondsubnet:
+        Type: AWS::EFS::MountTarget
+        Properties:
+           FileSystemId:
+                Ref: efscreation
+           SubnetId:
+                Ref: secondsubnetid
+           SecurityGroups:
+              - Ref: sgid
+Outputs:
+  efsid:
+     Description: output of efsid
+     Value:
+       Ref: efscreation                                         

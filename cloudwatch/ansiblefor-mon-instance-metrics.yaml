@@ -1,0 +1,16 @@
+---
+  - name: Ansible for monitoting InstanceMetrics(CpuUtilization, Disk O/p's)
+    hosts: localhost
+    tasks:
+      - cloudformation:
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            region: "{{ nameofregion }}"    
+            state: present
+            stack_name: "{{ stackname }}"
+            template: "{{ templatepath }}"
+            template_parameters:
+                 instanceid: "{{ instanceid }}"
+                 topicname: "{{ topicname }}"
+                 emailaddress: "{{ emailaddress }}"
+

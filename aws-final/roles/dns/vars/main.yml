@@ -1,0 +1,7 @@
+---
+dbsgname: databasesg
+DBName: testdb
+DBAllocatedStorage: 10
+DBInstanceClass: db.t2.micro
+DBUser: myadmin
+DBPassword: user12345

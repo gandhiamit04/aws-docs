@@ -1,0 +1,13 @@
+---
+
+ - name: inserting instance details in hostfile 
+   hosts: localhost
+   tasks:
+    - name: inserting a instane details
+      blockinfile: 
+          create: yes 
+          dest: /etc/ansible/hosts
+          block: |
+             uservm ansible_host="{{ publicip }}" ansible_user="{{ uservmadminusername }}" ansible_connection=ssh ansible_private_key_file="{{ keyfilepath }}"
+          state: present
+

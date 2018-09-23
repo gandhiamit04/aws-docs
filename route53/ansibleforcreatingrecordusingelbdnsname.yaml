@@ -1,0 +1,16 @@
+---
+  - name: Ansible for Creating The Recordset using Elb domainname
+    hosts: localhost
+    tasks:
+      - cloudformation:
+             aws_access_key: "{{ accesskey }}"
+             aws_secret_key: "{{ secretkey }}"
+             region: "{{ nameofregion }}"
+             state: present
+             stack_name: "{{ stackname }}"
+             template: "{{ templatepath }}"
+             template_parameters:
+                  hostedzonename: "{{ hostedzonename }}"
+                  elbdnsname: "{{ elbdnsname }}"
+                  elbcanonicalzoneid: "{{ elbcanonicalzoneid }}"
+                  name: "{{ domainname }}"

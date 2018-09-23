@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Lifecycle for The Bucket
+
+Parameters:
+  bucketname:
+      Type: String
+      Description: Enter The Bucketname 
+  bucketpermission:
+      Type: String
+      Description: Enter The Permission for The Bucket      
+  objectsalivedays:
+      Type: Number
+      Description: Enter The Number of Days For The Objects To Alive in Bucket
+  storageclass:
+      Type: String
+      Description: Enter The Storage Class For The Objects To Move
+  transitionindays:
+      Type: Number
+      Description: Pass after HowMnay Number of Days Should Objects To Move To Storageclass     
+Resources:
+  lifecycylebucketcreation:
+      Type: AWS::S3::Bucket
+      Properties:
+         AccessControl:
+             Ref: bucketpermission
+         BucketName:
+             Ref: bucketname
+         LifecycleConfiguration:
+             Rules: 
+               - ExpirationInDays:
+                      Ref: objectsalivedays
+                 Status: Enabled
+                 Transitions:
+                    - StorageClass:
+                           Ref: storageclass
+                      TransitionInDays:
+                           Ref: transitionindays
+Outputs:
+  lifecyclebucketname:
+     Description: output of lifecycle bucketname 
+     Value:
+         Ref: lifecycylebucketcreation 

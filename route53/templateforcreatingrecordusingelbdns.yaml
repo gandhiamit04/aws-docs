@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Desccription: Creating A Record In Route53 Using Elb as Endpoint
+
+Parameters:
+   hostedzonename:
+      Type: String
+      Description: The name of the domain for the hosted zone where you want to add the record set. 
+   elbdnsname:
+      Type: String
+      Description: Enter The Elb Dns Name
+   elbcanonicalzoneid:
+      Type: String
+      Description: Enter The Elb canonical Hosted Zone Id.
+   name:
+      Type: String
+      Description: Enter the Your Domain Name To Attach It To The hostedzone
+
+Resources:
+   recordcreation:
+        Type: AWS::Route53::RecordSet
+        Properties:
+            HostedZoneName:
+                 Ref: hostedzonename
+            Name:
+               Fn::Join: ["", [ Ref: name, ".", Ref:hostedzonename ] ]
+            Type: A
+            AliasTarget:
+                 DNSName:
+                    Ref: elbdnsname
+                 HostZoneId:
+                    Ref: elbcanonicalhostzoneid
+   
+      
+  
+    

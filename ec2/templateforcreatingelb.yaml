@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Template For Creating The Elb addding Webserver into it
+
+Parameters:
+   sgname:
+      Type: String
+      Description: Enter the elb securitygroup name
+   vpcid:
+      Type: String
+      Description: Enter the vpcid
+   elbname:
+      Type: String
+      Description: Enter the elasticloadbalancer name
+   firstsubnetid:
+      Type: String
+      Description: Enter the first-subnet-id to use with elb
+   secondsubnetid:
+      Type: String
+      Description: Enter the second-subnet-id to use with elb 
+   firstinstanceid:
+      Type: String
+      Description: Enter the first-webserverinstance-id to send incomming traffic
+   secondinstanceid:
+      Type: String
+      Description: Enter the second-webserverinstance-id to send incomming traffic 
+     
+Resources:
+   elbsgcreation:
+       Type: AWS::EC2::SecurityGroup 
+       Properties:
+          GroupName:
+              Ref: sgname
+          GroupDescription: ElbsecurityGroupformonitoringinstance
+          VpcId:
+              Ref: vpcid
+          SecurityGroupIngress:
+            - FromPort: 80
+              ToPort: 80
+              CidrIp: 0.0.0.0/0
+              IpProtocol: tcp
+   elbcreation:
+       Type: AWS::ElasticLoadBalancing::LoadBalancer
+       Properties:
+          LoadBalancerName:   
+              Ref: elbname
+          SecurityGroups:
+            - Ref: elbsgcreation
+          Subnets:
+            - Ref: firstsubnetid
+            - Ref: secondsubnetid
+          Instances:
+            - Ref: firstinstanceid
+            - Ref: secondinstanceid
+          Listeners:
+            - LoadBalancerPort: 80
+              Protocol: HTTP
+              InstancePort: 80  
+          HealthCheck:
+            HealthyThreshold: 4
+            Target: HTTP:80/index.html
+            Interval: 60
+            UnhealthyThreshold: 5
+            Timeout: 5
+Outputs:
+  elbid:
+    Description: Output of elbid
+    Value:
+      Ref: elbcreation   
+  elbdnsname:
+    Description: Output of ElasticLaodbalcner    
+    Value:
+      Fn::GetAtt: [ 'elbcreation', 'DNSName' ]

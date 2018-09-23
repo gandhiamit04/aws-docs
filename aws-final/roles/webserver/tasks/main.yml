@@ -1,0 +1,23 @@
+- name: ensure apache is at the latest version
+  yum:
+    pkg: "{{ item }}"
+    state: latest
+  with_items:
+    - httpd
+    - php
+    - php-gd
+    - php-mysql
+    - git
+- replace:
+    path: roles/webserver/files/index.php
+    regexp: 'MY_DB_HOST'
+    replace: "{{ dbinstance.stack_outputs.InstanceId }}"
+- name: Copy code
+  synchronize:
+    src: roles/webserver/files/
+    dest: /var/www/html
+- name: ensure apache is running
+  service:
+    name: httpd
+    state: started
+    enabled: yes

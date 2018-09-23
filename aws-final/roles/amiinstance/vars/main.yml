@@ -1,0 +1,9 @@
+---
+stackname: amiinstance
+nameofregion: us-east-1
+sgname: amiinstancesg
+availabilityzone: us-east-1a
+instancename: webami
+keyname: webkey
+imageid: ami-6871a115 
+instancetype: t2.micro

@@ -1,0 +1,216 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Lauchconfiguration and Autoscaing Group and Scaling Policies
+
+Parameters:
+  elbsgname:
+     Type: String
+     Description: Enter the securitygroup name
+  elbname:
+     Type: String
+     Description: Enter the securitygroup name
+  sgname:
+     Type: String
+     Description: Enter the securitygroup name
+  vpcid:
+     Type: String
+     Description: Enter the vpcid 
+  imageid:
+     Type: String
+     Description: Enter the imageid to use with launch configuration
+  instancetype:
+     Type: String
+     Description: Enter the instancetype to use with launch configuration
+  keyname:
+     Type: String
+     Description: Enter the keyname use to connect to an instance
+  firstalarmname:
+     Type: String
+     Description: Enter the Low cpu utilization alarm name
+  secondalarmname:
+     Type: String
+     Description: Enter the high cpu utilization alarm name
+  instancename:
+     Type: String
+     Description: Enter the instance name which are launching in autoscaling group
+  minsize:
+     Type: Number
+     Description: minsize of an autoscaling group 
+     Default: 2
+  maxsize:
+     Type: Number
+     Description: Maxsize of an autoscaling group
+     Default: 4
+  scaleupsize:
+     Type: Number
+     Description: Maxsize of an autoscaling group
+     Default: 2
+  scaledownsize:
+     Type: Number
+     Description: Maxsize of an autoscaling group
+     Default: 2
+  firstsubnetid:
+     Type: String
+     Description: Enter the first subnetid for the instances in autoscalinggroup
+  secondsubnetid:
+     Type: String
+     Description: Enter the second subnetid for the instances in autoscalinggroup
+
+Resources:
+  elbsgcreation:
+      Type: AWS::EC2::SecurityGroup 
+      Properties:
+         GroupName:
+             Ref: elbsgname
+         GroupDescription: ElbsecurityGroupformonitoringinstance
+         VpcId:
+             Ref: vpcid
+         SecurityGroupIngress:
+           - FromPort: 80
+             ToPort: 80
+             CidrIp: 0.0.0.0/0
+             IpProtocol: tcp
+  elbcreation:
+      Type: AWS::ElasticLoadBalancing::LoadBalancer
+      Properties:
+         LoadBalancerName:   
+             Ref: elbname
+         SecurityGroups:
+           - Ref: elbsgcreation
+         Subnets:
+           - Ref: firstsubnetid
+           - Ref: secondsubnetid
+         Listeners:
+           - LoadBalancerPort: 80
+             Protocol: HTTP
+             InstancePort: 80  
+         HealthCheck:
+             HealthyThreshold: 2
+             Target: HTTP:80/status.html
+             Interval: 30
+             UnhealthyThreshold: 2
+             Timeout: 5
+  sgcreation:
+     Type: AWS::EC2::SecurityGroup
+     Properties:
+        GroupName:
+           Ref: sgname
+        GroupDescription: SecurityGroup for Webserver
+        VpcId:
+           Ref: vpcid
+        SecurityGroupIngress:
+          - FromPort: 22
+            ToPort: 80
+            idrIp: 0.0.0.0/0
+            IpProtocol: tcp
+  launchconfigcreation: 
+     Type: AWS::AutoScaling::LaunchConfiguration
+     Properties:
+        ImageId:
+            Ref: imageid
+        BlockDeviceMappings:
+          - DeviceName: /dev/sdb
+            Ebs:
+              VolumeType: gp2
+              VolumeSize: 8
+              DeleteOnTermination: true
+        InstanceType: 
+           Ref: instancetype
+        SecurityGroups:
+          - Ref: sgcreation
+        AssociatePublicIpAddress: true
+        KeyName:
+           Ref: keyname
+  lowcpuutilizationscalingpolicy:
+     Type: AWS::AutoScaling::ScalingPolicy
+     Properties:
+       AutoScalingGroupName:
+             Ref: autoscalingcreation
+       AdjustmentType: ChangeInCapacity 
+       PolicyType: SimpleScaling
+       ScalingAdjustment:
+          Ref: scaledownsize
+  lowcpuutilization:
+     Type: AWS::CloudWatch::Alarm
+     Properties:
+       AlarmName: 
+          Ref: firstalarmname
+       AlarmDescription: Low cpu utilization of instances
+       AlarmActions:
+         - Ref: lowcpuutilizationscalingpolicy
+       MetricName: CPUUtilization
+       Threshold: 40
+       Statistic: Average
+       ComparisonOperator: LessThanOrEqualToThreshold
+       Namespace: AWS/EC2
+       Unit: Percent
+       Dimensions:
+          - Name: AutoScalingGroupName
+            Value:
+              Ref: autoscalingcreation
+       Period: 60
+       EvaluationPeriods: 1
+  highcpuutilizationscalingpolicy:
+     Type: AWS::AutoScaling::ScalingPolicy
+     Properties:
+       AdjustmentType: ChangeInCapacity
+       AutoScalingGroupName:
+          Ref: autoscalingcreation
+       PolicyType: SimpleScaling
+       ScalingAdjustment:
+          Ref: scaleupsize
+  highcpuutilization:
+     Type: AWS::CloudWatch::Alarm
+     Properties:
+        AlarmName:
+            Ref: secondalarmname
+        AlarmDescription: High Cpu utiliztion of Instances
+        AlarmActions:
+          - Ref: highcpuutilizationscalingpolicy
+        MetricName: CPUUtilization
+        Namespace: AWS/EC2
+        Threshold: 60
+        Statistic: Average
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        Dimensions:
+          - Name: AutoScalingGroupName
+            Value:
+              Ref: autoscalingcreation
+        Period: 60
+        EvaluationPeriods: 1
+        Unit: Percent
+  autoscalingcreation:
+     Type: AWS::AutoScaling::AutoScalingGroup
+     Properties:
+        LaunchConfigurationName: 
+              Ref: launchconfigcreation
+        LoadBalancerNames:
+            - Ref: elbcreation
+        HealthCheckType: EC2
+        HealthCheckGracePeriod: 60
+        DesiredCapacity:
+              Ref: minsize
+        VPCZoneIdentifier:
+            - Ref: firstsubnetid
+            - Ref: secondsubnetid
+        MinSize: 
+              Ref: minsize
+        MaxSize:
+              Ref: maxsize
+        Tags:
+            - Key: Name
+              Value:
+                Ref: instancename
+              PropagateAtLaunch: true               
+     UpdatePolicy:
+        AutoScalingRollingUpdate:
+              MaxBatchSize: 1
+              MinInstancesInService: 1
+              MinSuccessfulInstancesPercent: 100
+Outputs:
+  websgid: 
+    Description: InstanceId of the newly created RDS Instance
+    Value: !Ref sgcreation
+  lbdns: 
+    Description: lbdns name
+    Value: !Ref elbcreation

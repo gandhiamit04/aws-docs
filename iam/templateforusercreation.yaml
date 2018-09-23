@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating user and access key and secret key
+
+Parameters:
+  username:
+     Type: String
+     Description: Enter the user name that you want create
+  password:
+     Type: String
+     Description: Enter the password for the user
+  groupname:
+     Type: String
+     Description: Enter the group name where this user should attached too
+Resources:
+  usercreation:
+     Type: AWS::IAM::User
+     Properties:
+         Groups:
+          - Ref: groupname
+         UserName:
+            Ref: username
+         LoginProfile:
+            Password: 
+               Ref: password
+            PasswordResetRequired: true
+  keygeneration:
+     Type: AWS::IAM::AccessKey
+     Properties:
+         UserName:
+             Ref: usercreation
+         Status: Active
+   
+
+Outputs:
+  accesskey:
+      Description: Output of user accesskey
+      Value:
+         Ref: keygeneration
+  secretkey:
+      Description: Output of secretkey
+      Value:
+        Fn::GetAtt: [ 'keygeneration', 'SecretAccessKey' ]

@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Webserver Tho Host Website
+
+Parameters:
+
+   sgname:
+      Type: String
+      Description: Enter the Sgname To Attach To An Instance
+   vpcid:
+      Type: String
+      Description: Enter the vpcid
+   instancename:
+      Type: String
+      Description: Enter the instance Name
+   imageid:
+      Type: String
+      Description: Enter the imageid to use with instance
+   subnetid:
+      Type: String
+      Description: Enter the subnetid for getting privateipaddress to the machine
+   availabilityzone:
+      Type: String
+      Description: Enter the availabilityzone for the instance  
+   instancetype:
+      Type: String
+      Description: Enter the instance type for the instance
+   keyname:
+      Type: String
+      Description: Enter the key name to connect instance when it gets launched  
+
+Resources:
+   sgcreation:
+       Type: AWS::EC2::SecurityGroup
+       Properties:
+            GroupName:
+                Ref: sgname
+            GroupDescription: Security Group for webserver
+            VpcId:
+                Ref: vpcid
+            SecurityGroupIngress:
+              - FromPort: 22
+                ToPort: 22 
+                CidrIp: 0.0.0.0/0
+                IpProtocol: tcp
+              - FromPort: 80
+                ToPort: 80
+                CidrIp: 0.0.0.0/0
+                IpProtocol: tcp
+   instancecreation:
+       Type: AWS::EC2::Instance
+       Properties:
+           Tags:
+            - Key: Name
+              Value:
+                Ref: instancename
+           ImageId:
+              Ref: imageid
+           InstanceType: 
+              Ref: instancetype
+           SubnetId:
+              Ref: subnetid
+           AvailabilityZone:
+              Ref: availabilityzone
+           KeyName:
+              Ref: keyname
+           SecurityGroupIds:
+            - Ref: sgcreation 
+           BlockDeviceMappings:
+            - DeviceName: /dev/sdb
+              Ebs:
+                VolumeType: gp2
+                VolumeSize: 8
+                DeleteOnTermination: True
+Outputs:
+  instanceid:
+      Description: Output of Instanceid
+      Value:
+         Ref: instancecreation
+  publicdns:
+      Description: Output of Public dns of instance
+      Value:
+        Fn::GetAtt: [ 'instancecreation', 'PublicDnsName' ]

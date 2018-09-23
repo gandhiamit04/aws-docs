@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating Instance 
+
+Parameters:
+  instancesgname:
+    Type: String
+    Description: Enter the sgname to attach an instance
+  vpcid:
+    Type: String
+    Description: Enter the vpcid
+  imageid:
+    Type: String
+    Description: Enter the Imageid used to launch an instacnce
+  instancetype:
+    Type: String
+    Description: Enter the Instancetype to launch an instance
+  subnetid:
+    Type: String
+    Description: Enter the subnet id to associate with the instance
+  availabilityzone:
+    Type: String
+    Description: Enter the availabilityzone to launch an instance
+  instancename:
+    Type: String
+    Description: Enter the instancename
+  keyname:
+    Type: String
+    Description: Enter the keyname to connect with instance 
+
+Resources:
+  instancesgcreation:
+       Type: AWS::EC2::SecurityGroup
+       Properties:
+          GroupName: 
+              Ref: instancesgname
+          GroupDescription: This Security Group is For attaching to an Instance
+          VpcId:
+              Ref: vpcid
+          SecurityGroupIngress:
+            - FromPort: 22
+              ToPort: 22
+              CidrIp: 0.0.0.0/0
+              IpProtocol: tcp   
+            - FromPort: 80
+              ToPort: 80
+              CidrIp: 0.0.0.0/0
+              IpProtocol: tcp
+  instancecreation:
+       Type: AWS::EC2::Instance
+       Properties:
+          Tags:
+            - Key: Name
+              Value:
+                 Ref: instancename
+          AvailabilityZone:
+              Ref: availabilityzone
+          SubnetId:
+              Ref: subnetid 
+          InstanceType:
+              Ref: instancetype
+          KeyName:
+              Ref: keyname
+          SecurityGroupIds:
+            - Ref: instancesgcreation
+          ImageId:
+              Ref: imageid
+          BlockDeviceMappings:
+            - DeviceName: /dev/xvda
+              Ebs:
+                 VolumeType: gp2
+                 VolumeSize: 8
+                 DeleteOnTermination: True
+Outputs:
+  instanceidoutput:
+      Description: Output of Created New Instance Id
+      Value:
+         Ref: instancecreation
+  publicdns:
+      Description: Output of Instances Publicdns
+      Value:
+         Fn::GetAtt: [ instancecreation, PublicDnsName ]
+  publicip:
+      Description: output of instances publicip
+      Value:
+         Fn::GetAtt: [ instancecreation, PublicIp ]

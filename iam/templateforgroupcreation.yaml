@@ -1,0 +1,19 @@
+WSTemplateFormatVersion: 2010-09-09
+
+Description: Creating The Group and Adding The Policy To The Group
+
+Parameters:
+   groupname:
+      Type: String
+      Description: Enter the group name
+   accountid:
+      Type: String
+      Description: Enter the account id
+Resources:
+   groupcreation:
+       Type: AWS::IAM::Group
+       Properties:
+           GroupName:
+              Ref: groupname
+           ManagedPolicyArns:
+              - Fn::Join: [ "", [ "arn:aws:iam::", Ref: accountid, ":policy/policy-s3-us-east-1" ] ]

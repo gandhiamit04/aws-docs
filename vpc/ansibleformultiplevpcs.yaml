@@ -1,0 +1,32 @@
+---
+  - name: Creating Multiple Vpcs For Vpepeering Connection
+    hosts: localhost
+    tasks:
+      - cloudformation:
+             aws_access_key: "{{ accesskey }}"
+             aws_secret_key: "{{ secretkey }}"
+             region: "{{ nameofregion }}"
+             stack_name: "{{ item[0] }}"
+             state: present
+             template: "{{ templatepath }}"
+             template_parameters: 
+                  networkname: "{{ item[1] }}"
+                  networkcidr: "{{ item[2] }}"
+                  firstsubnetname: "{{ item[3] }}"
+                  firstsubnetcidr: "{{ item[4] }}"
+                  firstsubnetavailabilityzone: "{{ firstsubnetavailabilityzone }}" 
+                  secondsubnetname: "{{ item[5] }}"
+                  secondsubnetcidr: "{{ item[6] }}"
+                  secondsubnetavailabilityzone: "{{ secondsubnetavailabilityzone }}"
+                  routetablename: "{{ item[7] }}"
+                  igwname: "{{ item[8] }}"
+        with_together: 
+          - "{{ stacknames }}"
+          - "{{ networknames }}"
+          - "{{ networkcidrs }}"
+          - "{{ firstsubnetnames }}"
+          - "{{ firstsubnetcidrs }}"
+          - "{{ secondsubnetnames }}"
+          - "{{ secondsubnetcidrs }}"
+          - "{{ routetablenames }}"
+          - "{{ igwnames }}"

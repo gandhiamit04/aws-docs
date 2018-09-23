@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating The Dynamodb Table
+
+Parameters:
+   tablename:
+      Type: String
+      Description: Enter The Table Name
+   attributename:
+      Type: String
+      Description: Enter the attribute(column)Name
+   attributetype:
+      Type: String
+      Description: Enter the attribute(column)datatype s for String, N for Number, B for Binary 
+      Default: S
+      AllowedValues:
+        - S
+        - N
+        - B 
+   
+
+Resources:
+  dynamodbcreation:
+      Type: AWS::DynamoDB::Table
+      Properties:
+          TableName:
+             Ref: tablename
+          AttributeDefinitions:
+           - AttributeName:
+                 Ref: attributename
+             AttributeType:
+                 Ref: attributetype
+          KeySchema:
+           - AttributeName:
+                 Ref: attributename
+             KeyType: HASH
+          ProvisionedThroughput:
+             ReadCapacityUnits: 5
+             WriteCapacityUnits: 5

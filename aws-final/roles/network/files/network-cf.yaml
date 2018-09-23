@@ -1,0 +1,368 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Creating vpc and two publicsubnet
+
+Parameters:
+  vpcname:
+     Type: String
+     Description: Enter The vpc name
+  netcidr:
+     Type: String
+     Description: Enter the vpc cidr block
+  firstpublicsubnetname:
+     Type: String
+     Description: Enter the first public subnet name
+  firstpublicsubnetavailabilityzone:
+     Type: String
+     Description: Enter the first public subnet availablityzone
+  firstpublicsubnetcidr:
+     Type: String
+     Description: Enter the first public subnet cidr block 
+  secondpublicsubnetname:
+     Type: String
+     Description: Enter the second public subnet name
+  secondpublicsubnetavailabilityzone:
+     Type: String
+     Description: Enter second public subnet availabilityzone
+  secondpublicsubnetcidr:
+     Type: String
+     Description: Enter second public subnet cidr block    
+  routetablename:
+     Type: String
+     Description: Enter the route table name
+  igwname:
+     Type: String
+     Description: Enter the internet gateway name 
+  firstprivatesubnetavailabilityzone:
+     Type: String
+     Description: Enter the first private subnet availabilityzone
+  firstprivatesubnetname:
+     Type: String
+     Description: Enter the first private subnet name
+  firstprivatesubnetcidr:
+     Type: String
+     Description: Enter the first private subnet cidr block
+  secondprivatesubnetname:
+     Type: String
+     Description: Enter the second private subnet name
+  secondprivatesubnetavailabilityzone:
+     Type: String
+     Description: Enter the second private subnet availabilityzone
+  secondprivatesubnetcidr:
+     Type: String
+     Description: Enter the second private subnet cidrblock       
+
+Resources:
+   vpccreation:
+     Type: AWS::EC2::VPC
+     Properties:
+        CidrBlock:
+            Ref: netcidr
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        Tags:
+          - Key: Name
+            Value:
+              Ref: vpcname
+   firstsubnetcreation:
+     Type: AWS::EC2::Subnet
+     Properties:
+        Tags:
+          - Key: Name
+            Value:
+              Ref: firstpublicsubnetname 
+        CidrBlock: 
+           Ref: firstpublicsubnetcidr 
+        MapPublicIpOnLaunch: true
+        AvailabilityZone: 
+           Ref: firstpublicsubnetavailabilityzone
+        VpcId:
+           Ref: vpccreation
+   secondsubnetcreation:
+     Type: AWS::EC2::Subnet
+     Properties:
+        Tags:
+          - Key: Name
+            Value:
+              Ref: secondpublicsubnetname 
+        CidrBlock: 
+           Ref: secondpublicsubnetcidr 
+        MapPublicIpOnLaunch: true
+        AvailabilityZone: 
+           Ref: secondpublicsubnetavailabilityzone
+        VpcId:
+           Ref: vpccreation
+   routetablecreation:
+     Type: AWS::EC2::RouteTable
+     Properties:
+        Tags:
+          - Key: Name
+            Value:
+               Ref: routetablename
+        VpcId:
+          Ref: vpccreation
+   igwcreation:
+     Type: AWS::EC2::InternetGateway
+     Properties:
+        Tags:
+          - Key: Name
+            Value:
+              Ref: igwname
+   igwattachment:
+     Type: AWS::EC2::VPCGatewayAttachment
+     Properties:
+         InternetGatewayId:
+            Ref: igwcreation
+         VpcId:
+            Ref: vpccreation
+   routeaddition:
+     Type: AWS::EC2::Route
+     Properties:
+         RouteTableId:
+             Ref: routetablecreation
+         GatewayId:
+             Ref: igwcreation
+         DestinationCidrBlock: 0.0.0.0/0
+   firstsubnetattachment:
+     Type: AWS::EC2::SubnetRouteTableAssociation
+     Properties:
+        RouteTableId:
+             Ref: routetablecreation
+        SubnetId:
+             Ref: firstsubnetcreation
+   secondsubnetattachment:
+     Type: AWS::EC2::SubnetRouteTableAssociation
+     Properties:
+        RouteTableId:
+             Ref: routetablecreation
+        SubnetId:
+             Ref: secondsubnetcreation    
+                                   
+   firstprivatesubnetcreation:
+     Type: AWS::EC2::Subnet
+     Properties:
+        MapPublicIpOnLaunch: false 
+        AvailabilityZone:
+            Ref: firstprivatesubnetavailabilityzone
+        CidrBlock:
+            Ref: firstprivatesubnetcidr
+        VpcId:
+            Ref: vpccreation
+        Tags:
+          - Key: Name
+            Value:
+              Ref: firstprivatesubnetname
+   secondprivatesubnetcreation:
+     Type: AWS::EC2::Subnet
+     Properties:
+        MapPublicIpOnLaunch: false
+        AvailabilityZone:
+            Ref: secondprivatesubnetavailabilityzone
+        CidrBlock:
+            Ref: secondprivatesubnetcidr
+        VpcId:
+            Ref: vpccreation
+        Tags:
+           - Key: Name
+             Value:
+                Ref: secondprivatesubnetname
+   webacl:
+     Type: AWS::EC2::NetworkAcl
+     Properties:
+       VpcId:
+         Ref: vpccreation
+   myNetworkAclEntryssh:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: webacl
+       RuleNumber: '100'
+       Protocol: "6"
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '22'
+         To: '22'
+   myNetworkAclEntryhttp:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: webacl
+       RuleNumber: '101'
+       Protocol: "6"
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '80'
+         To: '80'
+   myNetworkAclEntryinephi:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: webacl
+       RuleNumber: '102'
+       Protocol: "6"
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '1024'
+         To: '65535'
+   myNetworkAclEntryephi:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: webacl
+       RuleNumber: '100'
+       Protocol: "6"
+       RuleAction: allow
+       Egress: 'true'
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '1024'
+         To: '65535'
+   myNetworkAclEntryhttpout:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: webacl
+       RuleNumber: '101'
+       Protocol: "6"
+       RuleAction: allow
+       Egress: 'true'
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '80'
+         To: '80'
+   myNetworkAclEntryhttpsout:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: webacl
+       RuleNumber: '102'
+       Protocol: "6"
+       RuleAction: allow
+       Egress: 'true'
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '443'
+         To: '443'
+   mySubnetNetworkAclAssociationWeb1:
+     Type: AWS::EC2::SubnetNetworkAclAssociation
+     Properties:
+       SubnetId:
+         Ref: firstsubnetcreation
+       NetworkAclId:
+         Ref: webacl
+   mySubnetNetworkAclAssociationWeb2:
+     Type: AWS::EC2::SubnetNetworkAclAssociation
+     Properties:
+       SubnetId:
+         Ref: secondsubnetcreation
+       NetworkAclId:
+         Ref: webacl
+   appacl:
+     Type: AWS::EC2::NetworkAcl
+     Properties:
+       VpcId:
+         Ref: vpccreation
+   appaclssh:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: appacl
+       RuleNumber: '100'
+       Protocol: "6"
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: '22'
+         To: '22'
+   appaclhttpwebsn1:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: appacl
+       RuleNumber: '101'
+       Protocol: "6"
+       RuleAction: allow
+       CidrBlock:
+         Ref: firstpublicsubnetcidr
+       PortRange:
+         From: '80'
+         To: '80'
+   appaclhttpwebsn2:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: appacl
+       RuleNumber: '102'
+       Protocol: "6"
+       RuleAction: allow
+       CidrBlock:
+         Ref: secondpublicsubnetcidr
+       PortRange:
+         From: '80'
+         To: '80'
+   appaclephiwebsn1:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: appacl
+       RuleNumber: '100'
+       Protocol: "6"
+       RuleAction: allow
+       Egress: 'true'
+       CidrBlock:
+         Ref: firstpublicsubnetcidr
+       PortRange:
+         From: '1024'
+         To: '65535'
+   appaclephiwebsn2:
+     Type: AWS::EC2::NetworkAclEntry
+     Properties:
+       NetworkAclId:
+         Ref: appacl
+       RuleNumber: '101'
+       Protocol: "6"
+       RuleAction: allow
+       Egress: 'true'
+       CidrBlock:
+         Ref: secondpublicsubnetcidr
+       PortRange:
+         From: '1024'
+         To: '65535'
+   mySubnetNetworkAclAssociationapp1:
+     Type: AWS::EC2::SubnetNetworkAclAssociation
+     Properties:
+       SubnetId:
+         Ref: firstprivatesubnetcreation
+       NetworkAclId:
+         Ref: appacl
+   mySubnetNetworkAclAssociationapp2:
+     Type: AWS::EC2::SubnetNetworkAclAssociation
+     Properties:
+       SubnetId:
+         Ref: secondprivatesubnetcreation
+       NetworkAclId:
+         Ref: appacl
+Outputs:
+   vpcid:
+      Description: output of vpcid
+      Value:
+         Ref: vpccreation
+   firstpublicsubnetid:
+      Description: Output of first public subnetid
+      Value:
+         Ref: firstsubnetcreation
+   secondpublicsubnetid:
+       Description: Output of second public subnetid
+       Value:
+         Ref: secondsubnetcreation
+   firstprivatesubnetid:
+       Description: Output of first private subnetid
+       Value:
+         Ref: firstprivatesubnetcreation
+   secondprivatesubnetid:
+       Description: Output od second private subnetid
+       Value:
+         Ref: secondprivatesubnetcreation 

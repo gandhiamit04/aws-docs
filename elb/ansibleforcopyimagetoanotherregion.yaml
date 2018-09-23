@@ -1,0 +1,13 @@
+## copying an ami form primary region to secondary region
+
+---
+
+  - name: copying ami form primary region to secondary region
+    hosts: localhost
+    tasks:
+      - ec2_ami_copy:
+            aws_access_key: "{{ accesskey }}"
+            aws_secret_key: "{{ secretkey }}"
+            source_region: "{{ primaryregion }}"
+            source_image_id: "{{ sourceimageid }}"
+            region: "{{ secondaryregion }}"

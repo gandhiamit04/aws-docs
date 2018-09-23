@@ -1,0 +1,15 @@
+---
+nameofregion: us-east-1
+stackname: instanceautoscale
+autoinstsgname: autoinstsg
+instancetype: t2.micro
+keyname: webkey
+lowcpualarmname: autoscale-low-alarm
+highcpualarmname: autoscale-high-alarm
+minsize: 2
+maxsize: 6
+scaledownsize: -2
+scaleupsize: 2
+instancename: autoinstance
+elbsgname: lbsgname
+elbname: weblb
